@@ -1,0 +1,16 @@
+geo,count,maxPop,maxPopName,minPop,minPopName,maxArea,maxAreaName,minArea,minAreaName
+school_districts,10896,10861395.0,"Remainder of California, California",2.0,"Kingsbury Plantation, Maine",1658.296,"Lower Kuskokwim School District, Alaska",0.12438,"East Newark Borough School District, New Jersey"
+states,52,39346023.0,California,20,Geo_QName,665764.2,Alaska,20.0,Geo_QName
+block_groups,242335,39373.0,"Block Group 1, Census Tract 187, San Diego County, California",1.0,"Block Group 1, Census Tract 143, New York County, New York",1658.296,"Block Group 1, Census Tract 1, Aleutians East Borough, Alaska",5e-05,"Block Group 2, Census Tract 86.01, New York County, New York"
+census_tracts,85395,39373.0,"Census Tract 187, San Diego County, California",1.0,"Census Tract 143, New York County, New York",1658.296,"Census Tract 1, Aleutians East Borough, Alaska",0.00822,"Census Tract 615.05, San Francisco County, California"
+county_subdivisions,36568,3450404.0,"Houston CCD, Harris County, Texas",1.0,"Sumpter township, Bradley County, Arkansas",1658.296,"Aleutians East census subarea, Aleutians East Borough, Alaska",0.00046,"Dayton city, Greene County, Ohio"
+counties,3221,10040682.0,"Los Angeles County, California",20,Geo_QName,147870.8,"Yukon-Koyukuk Census Area, Alaska",2.04645,"Falls Church city, Virginia"
+divisions,9,65235308.0,South Atlantic Division,20,Geo_QName,1009687.0,Pacific Division,20.0,Geo_QName
+nation,1,326569308.0,United States,20,Geo_QName,3812006.0,United States,20.0,Geo_QName
+places,31908,8379552.0,"New York city, New York",1.0,"Drummond city, Idaho",1658.296,"Sitka city and borough, Alaska",0.00505,"Rafael Pena CDP, Texas"
+regions,4,124605822.0,South Region,20,Geo_QName,1873252.0,West Region,20.0,Geo_QName
+state_legislative_districts_lower,4833,549079.0,"Assembly District 67 (2018), California",20,Geo_QName,1658.296,"State House District 6 (2018), Alaska",0.33428,"Chittenden-6-6 State House District (2018), Vermont"
+state_legislative_districts_upper,1961,1041745.0,"State Senate District 12 (2018), Texas",20,Geo_QName,1658.296,"State Senate District C (2018), Alaska",1.92801,"State Senate District 16 (2018), Rhode Island"
+subminor_civil_divisions,145,14488.0,"San José subbarrio, Oriente barrio, San Juan Municipio, Puerto Rico",20,Geo_QName,35.62821,"Aguirre (Rural) subbarrio, Aguirre barrio, Salinas Municipio, Puerto Rico",0.00879,"Cuartel Segundo subbarrio, Añasco barrio-pueblo, Añasco Municipio, Puerto Rico"
+urban_areas,3592,18714184.0,"New York--Newark, NY--NJ--CT Urbanized Area (2010)",20,Geo_QName,0.0,Geo_QName,20.0,Geo_QName
+ZIP_Code_Tabulation_Areas,33120,126310.0,ZCTA 77494,1.0,ZCTA 82229,13588.17,ZCTA 99557,0.00197,ZCTA 82073

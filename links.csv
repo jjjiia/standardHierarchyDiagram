@@ -1,0 +1,36 @@
+source,target
+NATION,REGIONS
+NATION,ZIP Code Tabulation Areas
+NATION,Urban Areas
+NATION,Core Based Statistical Areas
+REGIONS,DIVISIONS
+DIVISIONS,STATES
+STATES,School Districts
+STATES,Congressional Districts
+STATES,Urban Growth Areas
+STATES,State Legislative Districts
+STATES,Public Use Microdata Areas
+STATES,Places
+STATES,Counties
+Counties,Voting Districts
+Counties,Traffic Analysis Zones
+Counties,County Subdivisions
+County Subdivisions,Subminor Civil Divisions
+Counties,Census Tracts
+Census Tracts,Block Groups
+Block Groups,Census Blocks
+School Districts,blockS
+County Subdivisions,blockS
+Traffic Analysis Zones,blockS
+Congressional Districts,blockS
+Voting Districts,blockS
+ZIP Code Tabulation Areas,blockS
+Urban Areas,blockE
+Core Based Statistical Areas,blockE
+Urban Growth Areas,blockE
+State Legislative Districts,blockE
+Public Use Microdata Areas,blockE
+Places,blockE
+AIANNH Areas,AIANNH_top
+AIANNH_top,AIANNH_bottom
+AIANNH_bottom,blockE

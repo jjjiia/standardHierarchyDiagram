@@ -1,0 +1,27 @@
+label,x,y,anchor,fontClass,colorClass
+NATION,0,0,middle,1,nation
+AIANNH Areas*,4.5,0,start,1,nation
+AIANNH_top,9,0,start,1,blank
+AIANNH_bottom,9,9,start,1,blank
+REGIONS,0,1.5,middle,2,regions
+DIVISIONS,0,2.5,middle,2,divisions
+STATES,0,3.5,middle,2,states
+Counties,0,4.5,middle,2,counties
+Census Tracts,0,7,middle,3,tracts
+Block Groups,0,8,middle,4,groups
+Census Blocks,0,9,middle,5,blocks
+Urban Areas,4.5,2.5,start,5,regions
+Core Based Statistical Areas,4.75,3,start,5,regions
+Places,2,5.25,start,5,states
+Public Use Microdata Areas,2.5,4.75,start,5,states
+State Legislative Districts,3,4.25,start,5,states
+Urban Growth Areas,3.5,3.75,start,5,states
+ZIP Code Tabulation Areas,-3,2.5,end,5,regions
+School Districts,-5,3.5,end,5,states
+Congressional Districts,-5,4,end,5,states
+Voting Districts,-4.5,5.5,end,5,counties
+Traffic Analysis Zones,-4.25,6,end,5,counties
+County Subdivisions,-4,6.5,end,5,counties
+Subminor Civil Divisions,-4,7.5,end,5,subminor
+blockS,-1,9,middle,5,blank
+blockE,1,9,middle,5,blank
