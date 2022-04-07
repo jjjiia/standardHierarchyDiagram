@@ -140,6 +140,7 @@ function ready(data){
 	}
 	
 	d3.selectAll("#nation").style("display","block")
+	d3.select("text #nation").style("text-shadow","4px 4px 8px gold")
 }
 function drawNation(data){
 	//console.log(data)
@@ -327,7 +328,7 @@ function drawScatter(data,geo,chartColor){
 	//console.log(maxPop,maxArea)
 	var scatterDiv = d3.select("#detail").append("div").attr("id",cleanString(geo))
 	.attr("class","detailChart")
-	var titleDiv = scatterDiv.append("div").html(geo)
+	var titleDiv = scatterDiv.append("div").html(geo.toUpperCase())
 	var scatterSvg = scatterDiv.append('svg')
 	.attr("width",scatterW+scatterP*3)
 	.attr("height",scatterH+scatterP*2)
@@ -444,7 +445,7 @@ function drawChart(data, w, p, ch, chartColor){
 			
 			var chartDiv = d3.select("#detail").append("div").attr("id",cleanString(geo))
 			.attr("class","detailChart")
-			var titleDiv = chartDiv.append("div").html(geo.split("_").join(" "))
+			var titleDiv = chartDiv.append("div").html(geo.split("_").join(" ").toUpperCase())
 			var chartSvg = chartDiv.append("svg").attr("width",w+p*2).attr("height",ch+p*2)
 			var yScale = d3.scaleSqrt().domain([1,max]).range([5,ch])
 			var yScaleFlip= d3.scaleSqrt().domain([max,1]).range([1,ch])
