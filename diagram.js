@@ -239,7 +239,7 @@ function drawNation(data){
 	.attr("class","nationLabel _5")
 	.attr("x",function(d){
 		if(d.geo=="nation"){
-			return xScale(parseInt(d.max))+15
+			return xScale(parseInt(d.max))+10
 		}
 		return xScale(parseInt(d.max))+20
 	})
@@ -266,9 +266,9 @@ function drawNation(data){
 	.attr("class","nationGeoLabel _5")
 	.attr("x",function(d){
 		if(d.geo=="nation"){
-			return -5
+			return -10
 		}
-		return xScale(parseInt(d.min))-5
+		return xScale(parseInt(d.min))-10
 	})
 	.attr("y",function(d,i){return i*barH+barH/4})
 	.text(function(d,i){
