@@ -20,7 +20,7 @@ var files = ["s_block_groups.csv",
 "s_urban_areas.csv",
 "s_ZIP_Code_Tabulation_Areas.csv"]
 var colors = {
-	nation:"#aaa",  
+	nation:"#000",  
 	regions:"#7368d3",
 	divisions:"#bf50ce",
 	states:"#48b263",
@@ -142,7 +142,7 @@ function ready(data){
 	d3.selectAll("#nation").style("display","block")
 }
 function drawNation(data){
-	console.log(data)
+	//console.log(data)
 	var w = 400
 	var h = 700
 	var p = 60
@@ -154,6 +154,7 @@ function drawNation(data){
 	var xScale = d3.scaleLinear().domain([0,parseInt(data[0].max)]).range([5,w])
 	var xAxis = d3.axisTop().scale(xScale).ticks(4)
 	nationSvg.append("g").call(xAxis).attr("transform","translate("+p*4+","+(p-10)+")")
+	
 	nationSvg.selectAll(".nationBars")
 	.data(data)
 	.enter()
@@ -164,19 +165,72 @@ function drawNation(data){
 		}
 		return xScale(parseInt(d.min))
 	})
-	.attr("y",function(d,i){return i*barH})
-	.attr("height",function(d,i){return barH/4})
+	.attr("y",function(d,i){return i*barH+barH/8-1})
+	.attr("height",function(d,i){return 2})//barH/4})
 	.attr("width",function(d,i){
 		if(d.geo=="nation"){
 			return xScale(parseInt(d.max))
 		}
 		//console.log(parseInt(d.max)-parseInt(d.min))
-		return xScale(parseInt(d.max)-parseInt(d.min))
+		return xScale(parseInt(d.max)-parseInt(d.min))+5
 	})
 	.attr("transform","translate("+p*4+","+p+")")
 	.attr("fill",function(d){
 		return colors[fileNameToColor[d.geo]]
 	})
+	
+	nationSvg.selectAll(".nationBars")
+	.data(data)
+	.enter()
+	.append("circle")
+	.attr("cx",function(d){
+		if(d.geo=="nation"){
+			return 0
+		}
+		return xScale(parseInt(d.min))
+	})
+	.attr("cy",function(d,i){return i*barH+barH/8})
+	.attr("r",3)
+	// .attr("height",function(d,i){return barH/4})
+// 	.attr("width",function(d,i){
+// 		return 2
+// 		if(d.geo=="nation"){
+// 			return xScale(parseInt(d.max))
+// 		}
+// 		//console.log(parseInt(d.max)-parseInt(d.min))
+// 		return xScale(parseInt(d.max)-parseInt(d.min))
+// 	})
+	.attr("transform","translate("+p*4+","+p+")")
+	.attr("fill",function(d){
+		return colors[fileNameToColor[d.geo]]
+	})
+	
+	nationSvg.selectAll(".nationBars")
+	.data(data)
+	.enter()
+	.append("circle")
+	.attr("cx",function(d){
+		 if(d.geo=="nation"){
+ 			return xScale(parseInt(d.max))
+ 		}
+		return xScale(parseInt(d.max))+10
+	})
+	.attr("cy",function(d,i){return i*barH+barH/8})
+	.attr("r",3)
+	// .attr("height",function(d,i){return barH/4})
+// 	.attr("width",function(d,i){
+// 		return 2
+// 		if(d.geo=="nation"){
+// 			return xScale(parseInt(d.max))
+// 		}
+// 		//console.log(parseInt(d.max)-parseInt(d.min))
+// 		return xScale(parseInt(d.max)-parseInt(d.min))
+// 	})
+	.attr("transform","translate("+p*4+","+p+")")
+	.attr("fill",function(d){
+		return colors[fileNameToColor[d.geo]]
+	})
+	
 	
 	nationSvg.selectAll(".nationLabel")
 	.data(data)
@@ -185,9 +239,9 @@ function drawNation(data){
 	.attr("class","nationLabel _5")
 	.attr("x",function(d){
 		if(d.geo=="nation"){
-			return xScale(parseInt(d.max))+10
+			return xScale(parseInt(d.max))+15
 		}
-		return xScale(parseInt(d.max))+10
+		return xScale(parseInt(d.max))+20
 	})
 	.attr("y",function(d,i){return i*barH+barH/4})
 	.text(function(d,i){
@@ -195,9 +249,9 @@ function drawNation(data){
 		var max = numberWithCommas(d.max)
 		var geo = d.geo.split("_").join(" ")
 		if(d.geo=="nation"){
-			return max+" residents"
+			return "with "+ max+" residents"
 		}
-		return min+" to "+max+" residents"
+		return "each with "+min+" to "+max+" residents"
 	})
 	.attr("transform","translate("+p*4+","+p+")")
 	.attr("fill",function(d){
@@ -433,9 +487,9 @@ function drawChart(data, w, p, ch, chartColor){
 
 
 function drawDiagram(data,maxMinData,svg){
-	//console.log(data)
-	
-	svg.append("text").text("Standard Hierarchy of Census Geographic 	Entities").attr("x",w/2).attr("y",spaceY).attr("text-anchor","middle")
+	//console.log(data)	
+	svg.append("text").text("Standard Hierarchy of Census GeographicEntities")
+	.attr("x",w/2).attr("y",spaceY).attr("text-anchor","middle")
 	.style("font-weight",800)
 	.style("font-size","18px")
 	
@@ -483,11 +537,12 @@ function drawDiagram(data,maxMinData,svg){
 		if(d["maxMin"]!=undefined){
 			return colors[d.colorClass]
 		}else{
-			return "#aaa"
+			return "#000"
 		}
 	})
 	.style("opacity",function(d){
-		if(d["maxMin"]!=undefined){
+		console.log(d)
+		if(d["maxMin"]!=undefined || d["label"]=="nation"){
 			return 1
 		}else{
 			return .5
@@ -500,7 +555,7 @@ function drawDiagram(data,maxMinData,svg){
 	})
 	.on("click",function(e,d){
 		var chartId = cleanString(d.label)
-		console.log(chartId)
+		//console.log(chartId)
 		d3.selectAll(".detailChart").style("display","none")
 		d3.selectAll("#"+chartId).style("display","block")
 		
@@ -539,45 +594,45 @@ function drawDiagram(data,maxMinData,svg){
 	// 	})
 	
 	
-	svg.selectAll(".count_outline")
-	.data(data)
-	.enter()
-	.append("text")
-	.attr("class",function(d){
-			return "count_outline"
-	})
-	.text(function(d){
-		if(d["maxMin"]!=undefined){
-			return parseInt(d.maxMin.count).toLocaleString("en-US")
-		}
-	})
-	.style("font-size","14px")
-
-	.attr("stroke-width","5px")
-	.style("stroke","#fff")
-	.attr("x",function(d,i){ return d.x*spaceX+w/2})
-	.attr("y",function(d){return d.y*spaceY+spaceY*2+18})
-	.attr("text-anchor",function(d){return d.anchor})
-	
-	
-	svg.selectAll(".count")
-	.data(data)
-	.enter()
-	.append("text")
-	.attr("class",function(d){
-			return "count"
-	})
-	.text(function(d){
-		if(d["maxMin"]!=undefined){
-			//console.log(d)
-			return parseInt(d.maxMin.count).toLocaleString("en-US")
-		}
-	})
-	.style("font-size","14px")
-	.attr("x",function(d,i){ return d.x*spaceX+w/2})
-	.attr("y",function(d){return d.y*spaceY+spaceY*2+18})
-	.attr("text-anchor",function(d){return d.anchor})
-	.attr("fill",function(d){return colors[d.colorClass]})
+	// svg.selectAll(".count_outline")
+// 	.data(data)
+// 	.enter()
+// 	.append("text")
+// 	.attr("class",function(d){
+// 			return "count_outline"
+// 	})
+// 	.text(function(d){
+// 		if(d["maxMin"]!=undefined){
+// 			return parseInt(d.maxMin.count).toLocaleString("en-US")
+// 		}
+// 	})
+// 	.style("font-size","14px")
+//
+// 	.attr("stroke-width","5px")
+// 	.style("stroke","#fff")
+// 	.attr("x",function(d,i){ return d.x*spaceX+w/2})
+// 	.attr("y",function(d){return d.y*spaceY+spaceY*2+18})
+// 	.attr("text-anchor",function(d){return d.anchor})
+//
+//
+// 	svg.selectAll(".count")
+// 	.data(data)
+// 	.enter()
+// 	.append("text")
+// 	.attr("class",function(d){
+// 			return "count"
+// 	})
+// 	.text(function(d){
+// 		if(d["maxMin"]!=undefined){
+// 			//console.log(d)
+// 			return parseInt(d.maxMin.count).toLocaleString("en-US")
+// 		}
+// 	})
+// 	.style("font-size","14px")
+// 	.attr("x",function(d,i){ return d.x*spaceX+w/2})
+// 	.attr("y",function(d){return d.y*spaceY+spaceY*2+18})
+// 	.attr("text-anchor",function(d){return d.anchor})
+// 	.attr("fill",function(d){return colors[d.colorClass]})
 	
 		// svg.selectAll(".dot")
 	// 	.data(data)
