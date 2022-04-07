@@ -2,24 +2,49 @@
 <meta charset="utf-8">
 <title>Story Experiment</title>
 <style>
+	#info{
+		font-family:Roboto;
+		font-size:18px;
+		padding:10px;
+	}
+	a{color:#000;}
 	#diagram{
 		width:700px;
 		height:700px;
 		font-family:Roboto;
+		position:fixed;
+	}
+	#data{
+		position:absolute;
+/*		border:1px solid;
+*/		left:760px;
+		top:50px;
+		font-family:Roboto;
+		padding:10px;
+		font-size:14px;
 	}
 	#detail{
-		width:200px;
-		height:500px;
-		border:1px dotted black;
-		position:fixed;
-		left:940px;
-		top:10px;
+/*		border:1px dotted;
+*/		padding:20px;
+		margin:10px;
+	}
+	#dataTitle{
+		align:center;
 	}
 	._1{font-size:24px;}
 	._2{font-size:20px;}
 	._3{font-size:18px;}
 	._4{font-size:16px;}
 	._5{font-size:14px;}
+	#chartPopup{
+		position:fixed;
+		left:0px;
+		top:0px;
+		z-index:999;
+		background-color:#fff;
+		padding:10px;
+		border:1px solid black;
+	}
 </style>
 
 <body>
@@ -29,10 +54,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400&display=swap" rel="stylesheet">
-
+<div id="info">Here is an interactive reproduction of the <a href="https://www2.census.gov/geo/pdfs/reference/geodiagram.pdf" target="blank">diagram</a>
+	from the Census Bureau describing the hierarchy of the geographic units that Census data are packaged into.  <!-- Data of the population of each layer of hierarchy is based on the American Community Survey's most recent 2020 5-year estimates. --></div> 
    
 <div id="diagram"></div>
-<div id="detail">detail</div>
+<div id="data">
+	<div id="dataTitle"><span class="_3">Population data based on ACS 2020 5-Year Estimates</span></div>
+	<div id="detail"></div>
+	<div id="chartPopup">test</div>
+</div>
+
 <script src="diagram.js"></script>
 
 </body>

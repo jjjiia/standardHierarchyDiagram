@@ -1,19 +1,26 @@
-var files = ["block_group.csv",
-"census_tract.csv",
-"county_subdivision.csv",
-"county.csv",
-"division.csv",
-"nation.csv",
-"place.csv",
-"region.csv",
-"school_district.csv",
-"state_legislative_district_lower.csv",
-"state_legislative_district_upper.csv",
-"subminor_civil_division.csv",
-"urban_area.csv",
-"ZIP_Code_Tabulation_Area.csv"]
+//change to click to see geo
+//layout = population and land
+//most
+//no pop
+//
+
+var files = ["s_block_groups.csv",
+"s_census_tracts.csv",
+"s_county_subdivisions.csv",
+"s_counties.csv",
+"s_divisions.csv",
+"s_nation.csv",
+"s_places.csv",
+"s_regions.csv",
+"s_school_districts.csv",
+"s_state_legislative_districts.csv",
+"s_states.csv",
+// "s_state_legislative_district_upper.csv",
+"s_subminor_civil_divisions.csv",
+"s_urban_areas.csv",
+"s_ZIP_Code_Tabulation_Areas.csv"]
 var colors = {
-	nation:"#000",
+	nation:"#000",  
 	regions:"#6178d9",
 	divisions:"#7854d9",
 	states:"#5eb24c",
@@ -24,24 +31,56 @@ var colors = {
 	subminor:"#d5453e",
 	blank:"#000"
 }
+var fileNameToColor = {
+	ZIP_Code_Tabulation_Areas:"regions",
+	urban_areas: "regions",
+	school_districts: "states",
+	state_legislative_districts: "states",
+	counties:"counties",
+	places: "states",
+	county_subdivisions: "counties",
 
+	block_groups:"groups",
+	census_tracts: "tracts",
+	subminor_civil_divisions:"subminor",
+	states:"states"
+}
+//Congressional_Districts,435,761179,NA,761179,NA
 var nodesDictionary = {}
 
+var filesPromises =[]
+for(var f in files){
+	filesPromises.push(d3.csv(files[f]))
+}
 // cons
 
-var promises = [d3.csv("labels.csv"),d3.csv("maxmin.csv"),d3.csv("links.csv")]
+var promises = [d3.csv("labels.csv"),d3.csv("maxmin.csv"),d3.csv("links.csv"),d3.csv("histo.csv")].concat(filesPromises)
 // for(var f in files){
 // 	promises.push(d3.csv(files[f]))
 // }
-var w = 840
+var w = 750
 var h = 900
-var spaceX = 45
+var spaceX = 38
 var spaceY = 70
 
 Promise.all(promises)
 .then(function(data){
 	ready(data)
 })
+var maxLimit = {
+	ZIP_Code_Tabulation_Areas:130000,
+	urban_areas: 2500000,
+	school_districts: 1000000,
+	state_legislative_districts: 550000,
+	counties: 2500000,
+	places: 1000000,
+	county_subdivisions: 1200000,
+
+	block_groups:20000,
+	census_tracts: 20000,
+	subminor_civil_divisions:20000 ,
+	states:20000000
+}
 
 function ready(data){
 	var nodes = data[0]
@@ -57,29 +96,254 @@ function ready(data){
 			nodesDictionary[nodeName]=nodes[n]
 		}
 	}
-	console.log(nodesDictionary)
+	//console.log(nodesDictionary)
 	//var maxMinDictionary = {}
 	for(var m in maxMin){
 		if(maxMin[m].geo!=undefined){
 			var nodeName = cleanString(maxMin[m].geo)
-			console.log(nodeName)
+			//console.log(nodeName)
 			if(Object.keys(nodesDictionary).indexOf(nodeName)>-1){
 				nodesDictionary[nodeName]["maxMin"]=maxMin[m]
 			}
 			//console.log(nodeName)
 		}
 	}
-	console.log(nodesDictionary)
+	//console.log(nodesDictionary)
 	
 	drawLinks(links,nodes,svg)
 	drawDiagram(nodes,maxMin,svg)
+	//drawChart(data[3])
+	// console.log(data)
+	// console.log(maxMin)
+	var scatterLayers = ["regions","divisions","states"]
+	
+	var histoData = data[3]
+	for(var i in histoData){
+		
+		if(scatterLayers.indexOf(histoData[i].geo)>-1){
+			var geo = histoData[i].geo
+			var chartColor = colors[geo]
+			
+			var scatterData = data[files.indexOf("s_"+histoData[i].geo+".csv")+4]
+			drawScatter(scatterData,geo,chartColor)
+			
+		}else if(histoData[i].geo=="nation"){
+			drawNation()
+		}else if(histoData[i].bins!=undefined ){
+			var chartColor = colors[fileNameToColor[histoData[i].geo]]
+			drawChart(histoData[i],600,40,300,chartColor)
+		}
+	}
+	
+	
+}
+function drawNation(){
+	
+}
+function numberWithCommas(num) {
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+
+function drawScatter(data,geo,chartColor){
+	console.log(chartColor)
+	var scatterW = 500
+	var scatterH = 300
+	var scatterP = 80
+	var maxPop = d3.max(data, function(d) {return parseInt(d["population"]); })
+	var maxArea = d3.max(data, function(d) {return parseFloat(d["area"]); })
+
+	console.log(maxPop,maxArea)
+	var scatterDiv = d3.select("#detail").append("div")
+	var titleDiv = scatterDiv.append("div").html(geo)
+	var scatterSvg = scatterDiv.append('svg')
+	.attr("width",scatterW+scatterP*3)
+	.attr("height",scatterH+scatterP*2)
+	
+	
+	scatterSvg.append("text").text("population").attr("x",scatterW/2)
+	.attr("y",scatterH+scatterP*1.8)
+	
+	scatterSvg.append("text").text("area").attr("x",0).attr("y",0)
+	.attr("transform","rotate(90) translate("+scatterP*2+","+(-scatterP*.2)+")")
+	
+	
+	if(geo=="states"){
+		var xScale = d3.scaleSqrt().domain([0,maxPop]).range([0,scatterW])
+		var yScale = d3.scaleSqrt().domain([0,maxArea]).range([scatterH,0])	
+	}
+	else{
+		var xScale = d3.scaleLinear().domain([0,maxPop]).range([0,scatterW])
+		var yScale = d3.scaleLinear().domain([0,maxArea]).range([scatterH,0])
+	}
+	
+	
+	var xAxis = d3.axisBottom().scale(xScale).ticks(5)
+	scatterSvg.append("g").call(xAxis).attr("transform","translate("+scatterP+","+(scatterH+scatterP)+")")
+	
+	var yAxis = d3.axisLeft().scale(yScale).ticks(6)
+	scatterSvg.append("g").call(yAxis).attr("transform","translate("+scatterP+","+scatterP+")")
+	
+	scatterSvg.selectAll("circle")
+	.data(data)
+	.enter()
+	.append("circle")
+	.attr("r",5)
+	.attr("cx",function(d,i){return xScale(parseInt(d.population))})
+	.attr("cy",function(d,i){return yScale(parseFloat(d.area))})
+	.attr("opacity",.5)
+	.attr("fill",chartColor)
+	.attr("transform","translate("+scatterP+","+scatterP+")")
+		.style("cursor","pointer")
+	.on("mouseover",function(e,d){
+			d3.select(this).attr("opacity",1)
+			d3.select("#chartPopup")
+		.html(d.name+"<br>"+numberWithCommas(d.population)
+		+" residents<br>"+numberWithCommas(d.area)+" sq. miles")
+			.style("left",(event.clientX+10)+"px")
+			.style("top",(event.clientY+10)+"px")
+			.style("visibility","visible")
+	})
+	.on("mouseout",function(e,d){
+			d3.select(this).attr("opacity",.5)
+		d3.select("#chartPopup").style("visibility","hidden")
+	})
+	if(geo!="states"){
+		scatterSvg.selectAll(".regionText")
+		.data(data)
+		.enter()
+		.append("text")
+		.attr("class","regionText")
+		.text(function(d){return d.name})
+		.attr("x",function(d,i){return xScale(parseInt(d.population))})
+		.attr("y",function(d,i){return yScale(parseFloat(d.area))+15})
+		.style("font-size","11px")
+		.style("text-anchor","middle")
+		.attr("opacity",1)
+		.attr("fill",chartColor)
+		.attr("transform","translate("+scatterP+","+scatterP+")")
+		.style("cursor","pointer")
+		
+		.on("mouseover",function(e,d){
+			d3.select(this).attr("opacity",1)
+			d3.select("#chartPopup")
+			.html(d.name+"<br>"+numberWithCommas(d.population)
+			+" residents<br>"+numberWithCommas(d.area)+" sq. miles")
+			.style("left",(event.clientX+10)+"px")
+			.style("top",(event.clientY+10)+"px")
+			.style("visibility","visible")
+		})
+		.on("mouseout",function(e,d){
+			d3.select(this).attr("opacity",.5)
+			d3.select("#chartPopup").style("visibility","hidden")
+		})
+	}
+	
+	
+	
+	
+}
+
+function drawChart(data, w, p, ch, chartColor){
+	// var w = 600
+	// var p = 40
+	// var ch = 300
+	var barInterval = data.interval
+	// for(var i in data){
+		// 		var chartColor = colors[fileNameToColor[data[i].geo]]
+		// 		if(data[i].bins!=undefined && data[i].geo!="nation" && data[i].geo!="regions" && data[i].geo!="states"&& data[i].geo!="divisions"){
+		var histoData = data.bins.replace("[[","").replace("]]","").split("\'").join("").split("], [")
+			//console.log(histoData)
+			var histoDataArray = []
+			for(var h in histoData){
+				var bin = histoData[h].split(",")
+				histoDataArray.push(bin)
+			}
+			var min = d3.min(histoDataArray, function(d) {return parseInt(d[1]); })
+			var max = d3.max(histoDataArray, function(d) {return parseInt(d[1]); })
+			// console.log(histoDataArray)
+	// 		console.log(min,max)
+	//
+	// 		console.log(data[i].min)
+	// 		console.log(data[i].max)
+			
+			var barW = 8//w/histoDataArray.length+1
+			var geo = data.geo
+			
+			var chartDiv = d3.select("#detail").append("div").attr("id",cleanString(geo))
+			var titleDiv = chartDiv.append("div").html(geo.split("_").join(" "))
+			var chartSvg = d3.select("#detail").append("svg").attr("width",w+p*2).attr("height",ch+p*2)
+			var yScale = d3.scaleSqrt().domain([1,max]).range([5,ch])
+			var yScaleFlip= d3.scaleSqrt().domain([max,1]).range([1,ch])
+			
+			var xScale = d3.scaleLinear().domain([0,maxLimit[geo]]).range([0,w-p*2])
+			
+			
+			
+			var yAxis = d3.axisLeft().scale(yScaleFlip).ticks(3)
+			chartSvg.append("g").call(yAxis).attr("transform","translate("+p*2+","+p+")")
+			
+			var xAxis = d3.axisBottom().scale(xScale).ticks(5)
+			chartSvg.append("g").call(xAxis).attr("transform","translate("+p*2+","+(ch+p)+")")
+			// var xAxis =
+			chartSvg.append("text").text("population").attr("x",w/2).attr("y",ch+p*1.8)
+			chartSvg.append("text").text("# of "+data.geo.split("_").join(" ")).attr("x",0).attr("y",0)
+			.attr("transform","rotate(90) translate("+p+","+(-p*.5)+")")
+			
+			var pastMax =0
+			
+			chartSvg.selectAll(".bars_"+geo)
+			.data(histoDataArray)
+			.enter()
+			.append("rect")
+			.attr("x",function(d){
+				//console.log(data.interval)
+				var bin = d[0].replace("_","")
+				var pop = bin*data.interval
+				if(pop>maxLimit[geo]){
+					pastMax+=parseInt(d[1])
+				}
+				return xScale(pop)
+			})
+			.attr("y",function(d,i){return ch-yScale(parseInt(d[1]))})
+			.attr("width",barW)
+			.attr("height",function(d,i){return yScale(parseInt(d[1]))})
+			.attr("opacity",.5)
+			.attr("fill",function(d,i){
+				return chartColor
+			})
+			.attr("transform","translate("+p*2+","+p+")")
+			.style("cursor","pointer")
+			.on("mouseover",function(e,d){
+				d3.select(this).attr("opacity",1)
+
+				var bin =parseInt(d[0].replace("_",""))
+				var maxValue = numberWithCommas(parseInt(bin*barInterval)+parseInt(barInterval))
+				var count = numberWithCommas(parseInt(d[1]))
+				var minValue = numberWithCommas(bin*barInterval)
+				
+				d3.select("#chartPopup")
+				.html(count+" "+data.geo.split("_").join(" ")+"<br>"
+					+"have between "+minValue+" - "+maxValue+" residents")
+				.style("left",(event.clientX+10)+"px")
+				.style("top",(event.clientY+10)+"px")
+				.style("visibility","visible")
+			})
+			.on("mouseout",function(e,d){
+				d3.select(this).attr("opacity",.5)
+				d3.select("#chartPopup").style("visibility","hidden")
+			})
+			//console.log(geo, maxLimit[geo],pastMax)
+		//break
+	//	}
+	//}
 }
 
 
 function drawDiagram(data,maxMinData,svg){
 	//console.log(data)
 	
-	svg.append("text").text("Standard Hierarchy of Census Geographic Entities").attr("x",w/2).attr("y",spaceY).attr("text-anchor","middle")
+	svg.append("text").text("Standard Hierarchy of Census Geographic 	Entities").attr("x",w/2).attr("y",spaceY).attr("text-anchor","middle")
 	.style("font-weight",800)
 	.style("font-size","18px")
 	
@@ -90,12 +354,17 @@ function drawDiagram(data,maxMinData,svg){
 	.attr("class",function(d){
 			return "labelOutline _"+d.fontClass
 	})
+	.attr("id",function(d){
+		return cleanString(d.label)+"_outline"
+	})
 	.text(function(d){
 		if(d.colorClass=="blank"){return ""}
 		return d.label
 	})
-	.attr("stroke-width","12px")
+	.attr("stroke-width","10px")
+	.style("line-cap","round")
 	.style("stroke","#fff")
+	.style("fill-opacity",0)
 	.attr("x",function(d,i){ return d.x*spaceX+w/2})
 	.attr("y",function(d){return d.y*spaceY+spaceY*2+5})
 	.attr("text-anchor",function(d){return d.anchor})
@@ -107,6 +376,9 @@ function drawDiagram(data,maxMinData,svg){
 	.attr("class",function(d){
 			return "label _"+d.fontClass
 	})
+	.attr("id",function(d){
+		return cleanString(d.label)
+	})
 	.text(function(d){
 		if(d.colorClass=="blank"){return ""}
 		return d.label
@@ -114,8 +386,58 @@ function drawDiagram(data,maxMinData,svg){
 	.attr("x",function(d,i){ return d.x*spaceX+w/2})
 	.attr("y",function(d){return d.y*spaceY+spaceY*2+5})
 	.attr("text-anchor",function(d){return d.anchor})
-	.attr("fill",function(d){return colors[d.colorClass]})
-	
+	.style("text-shadow","1px 1px 10px white")
+	.attr("fill",function(d){
+		if(d["maxMin"]!=undefined){
+			return colors[d.colorClass]
+		}else{
+			return "#aaa"
+		}
+	})
+	.style("opacity",function(d){
+		if(d["maxMin"]!=undefined){
+			return 1
+		}else{
+			return .5
+		}
+	})
+	.style("cursor",function(d){
+	 if(d["maxMin"]!=undefined){
+		 return "pointer"
+	 }
+	})
+	 .on("mouseover",function(e,d){
+		 console.log(d)
+		 if(d["maxMin"]!=undefined){
+			 d3.select(this).style("text-shadow","2px 2px 2px gold")
+		 }
+	 })
+	 .on("mouseout",function(e,d){
+		d3.select(this).style("text-shadow","1px 1px 8px white")
+	 	
+	 })
+	// 		var string = ""
+	// 		if(d["maxMin"]!=undefined){
+	// 			var itemId = d3.select(this).attr("id")
+	// 			d3.select("#"+itemId+"_outline").style("stroke","gold")
+	// 			//console.log(d)
+	// 			if(d.label=="NATION"){
+	// 				string+="Population:"+parseInt(d.maxMin.maxPop).toLocaleString("en-US")+"<br>"
+	//
+	// 			}else{
+	// 				string+=d.maxMin.count
+	// 				+" "+d.label+"<br><br>Minimum Population: <br> "+parseInt(d.maxMin.minPop).toLocaleString("en-US")+"<br>"+d.maxMin.minPopName
+	// 				+"<br><br>Maximum Population "+d.label+": <br>"+parseInt(d.maxMin.maxPop).toLocaleString("en-US")+"<br>"+" - "+d.maxMin.maxPopName+"<br>"
+	// 			}
+	// 			d3.select("#detail").html(string)
+	// 		}
+	// 	})
+	// 	.on("mouseout",function(e,d){
+	// 			d3.select("#detail").html("")
+	//
+	// 			var itemId = d3.select(this).attr("id")
+	// 			d3.select("#"+itemId+"_outline").style("stroke","white")
+	// 	})
 	
 	
 	svg.selectAll(".count_outline")
@@ -127,17 +449,17 @@ function drawDiagram(data,maxMinData,svg){
 	})
 	.text(function(d){
 		if(d["maxMin"]!=undefined){
-			console.log(d)
-			return parseInt(d.maxMin.count)
+			return parseInt(d.maxMin.count).toLocaleString("en-US")
 		}
 	})
-	.style("font-size","12px")
+	.style("font-size","14px")
 
 	.attr("stroke-width","5px")
 	.style("stroke","#fff")
 	.attr("x",function(d,i){ return d.x*spaceX+w/2})
 	.attr("y",function(d){return d.y*spaceY+spaceY*2+18})
 	.attr("text-anchor",function(d){return d.anchor})
+	
 	
 	svg.selectAll(".count")
 	.data(data)
@@ -148,26 +470,27 @@ function drawDiagram(data,maxMinData,svg){
 	})
 	.text(function(d){
 		if(d["maxMin"]!=undefined){
-			console.log(d)
-			return parseInt(d.maxMin.count)
+			//console.log(d)
+			return parseInt(d.maxMin.count).toLocaleString("en-US")
 		}
 	})
-	.style("font-size","12px")
+	.style("font-size","14px")
 	.attr("x",function(d,i){ return d.x*spaceX+w/2})
 	.attr("y",function(d){return d.y*spaceY+spaceY*2+18})
 	.attr("text-anchor",function(d){return d.anchor})
 	.attr("fill",function(d){return colors[d.colorClass]})
 	
-	// svg.selectAll(".dot")
-// 	.data(data)
-// 	.enter()
-// 	.append("circle")
-// 	.attr("class","dot")
-// 	.attr("r",2)
-// //	.attr("text",function(d){return d.geographies})
-// 	.attr("cx",function(d,i){return d.x*spaceX+w/2})
-// 	.attr("cy",function(d){return d.y*spaceY+spaceY*2+2})
+		// svg.selectAll(".dot")
+	// 	.data(data)
+	// 	.enter()
+	// 	.append("circle")
+	// 	.attr("class","dot")
+	// 	.attr("r",2)
+	// //	.attr("text",function(d){return d.geographies})
+	// 	.attr("cx",function(d,i){return d.x*spaceX+w/2})
+	// 	.attr("cy",function(d){return d.y*spaceY+spaceY*2+2})
 }
+
 function cleanString(string){
 	var string = string.replace(/[^\w\s]/gi, '')
 	string = string.toLowerCase()
@@ -175,24 +498,24 @@ function cleanString(string){
 }
 
 function drawLinks(links,nodes,svg){
-	var linkPath = d3.line()//.curve(d3.curveBasis)	
+		var linkPath = d3.line()//.curve(d3.curveBasis)	
 	
-	// console.log(links)
-// 	console.log(nodes)
-	for(var l in links){
-		var link = links[l]
-		var source = link.source
-		var target = link.target
-		if(source!=undefined && target!=undefined){
-		//console.log(source,cleanString(target))
-			var sourceX = nodesDictionary[cleanString(source)].x
-			var sourceY = nodesDictionary[cleanString(source)].y
-			var targetX = nodesDictionary[cleanString(target)].x
-			var targetY = nodesDictionary[cleanString(target)].y
-			// console.log([target])
-// 			console.log(nodes)
-// 			console.log(targetCoords)
-			var lineData = [[sourceX*spaceX+w/2,sourceY*spaceY+spaceY*2],[targetX*spaceX+w/2,targetY*spaceY+spaceY*2]]
+		// console.log(links)
+	// 	console.log(nodes)
+		for(var l in links){
+			var link = links[l]
+			var source = link.source
+			var target = link.target
+			if(source!=undefined && target!=undefined){
+			//console.log(source,cleanString(target))
+				var sourceX = nodesDictionary[cleanString(source)].x
+				var sourceY = nodesDictionary[cleanString(source)].y
+				var targetX = nodesDictionary[cleanString(target)].x
+				var targetY = nodesDictionary[cleanString(target)].y
+				// console.log([target])
+	// 			console.log(nodes)
+	// 			console.log(targetCoords)
+				var lineData = [[sourceX*spaceX+w/2,sourceY*spaceY+spaceY*2],[targetX*spaceX+w/2,targetY*spaceY+spaceY*2]]
 			
 			
 		//	console.log(lineData)
@@ -203,6 +526,14 @@ function drawLinks(links,nodes,svg){
  					return linkPath(lineData)
 			})
 			.attr('stroke', colors[nodesDictionary[cleanString(source)].colorClass])
+			.style("opacity",function(){
+				if(nodesDictionary[cleanString(target)]["maxMin"]!=undefined){
+					return 1
+				}else{
+					return .5
+				}
+			})
+			
 			
 			var pathLength = path.node().getTotalLength();			
 			path.attr("pathLength",pathLength)
