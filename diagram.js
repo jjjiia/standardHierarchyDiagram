@@ -60,7 +60,7 @@ var promises = [d3.csv("labels.csv"),d3.csv("maxmin.csv"),d3.csv("links.csv"),d3
 // for(var f in files){
 // 	promises.push(d3.csv(files[f]))
 // }
-var w = 750
+var w = 780
 var h = 900
 var spaceX = 38
 var spaceY = 70
@@ -147,13 +147,22 @@ function drawNation(data){
 	var h = 700
 	var p = 60
 	var barH = 40
+	
 	var nationDiv = d3.select("#detail").append("div").attr("id","nation").attr("class","detailChart")
-	var nationTitle = nationDiv.append("div").html("Overview of population range for each geography")
+	var nationTitle = nationDiv.append("div").html("Population Range for Each Geography")
+	.attr("class","_4")
 	var nationSvg = nationDiv.append("svg").attr("width",w+p*7).attr("height",h)
 	
 	var xScale = d3.scaleLinear().domain([0,parseInt(data[0].max)]).range([5,w])
-	var xAxis = d3.axisTop().scale(xScale).ticks(4)
-	nationSvg.append("g").call(xAxis).attr("transform","translate("+p*4+","+(p-10)+")")
+	
+	var xAxis = d3.axisBottom().scale(xScale)
+		.ticks(10)
+		.tickSize(h-p*2)
+		.tickFormat(function(d,i){return d/1000000+" million"})
+	
+	nationSvg.append("g").call(xAxis)
+	.attr("transform","translate("+p*4+","+(p/2+5)+")")
+	.style("stroke-dasharray", "1 2")
 	
 	nationSvg.selectAll(".nationBars")
 	.data(data)
@@ -161,7 +170,7 @@ function drawNation(data){
 	.append("rect")
 	.attr("x",function(d){
 		if(d.geo=="nation"){
-			return 0
+			return 5
 		}
 		return xScale(parseInt(d.min))
 	})
@@ -169,12 +178,12 @@ function drawNation(data){
 	.attr("height",function(d,i){return 2})//barH/4})
 	.attr("width",function(d,i){
 		if(d.geo=="nation"){
-			return xScale(parseInt(d.max))
+			return xScale(parseInt(d.max))-5
 		}
 		//console.log(parseInt(d.max)-parseInt(d.min))
 		return xScale(parseInt(d.max)-parseInt(d.min))+5
 	})
-	.attr("transform","translate("+p*4+","+p+")")
+	.attr("transform","translate("+p*4+","+p/2+")")
 	.attr("fill",function(d){
 		return colors[fileNameToColor[d.geo]]
 	})
@@ -185,22 +194,13 @@ function drawNation(data){
 	.append("circle")
 	.attr("cx",function(d){
 		if(d.geo=="nation"){
-			return 0
+			return 5
 		}
 		return xScale(parseInt(d.min))
 	})
 	.attr("cy",function(d,i){return i*barH+barH/8})
 	.attr("r",3)
-	// .attr("height",function(d,i){return barH/4})
-// 	.attr("width",function(d,i){
-// 		return 2
-// 		if(d.geo=="nation"){
-// 			return xScale(parseInt(d.max))
-// 		}
-// 		//console.log(parseInt(d.max)-parseInt(d.min))
-// 		return xScale(parseInt(d.max)-parseInt(d.min))
-// 	})
-	.attr("transform","translate("+p*4+","+p+")")
+	.attr("transform","translate("+p*4+","+p/2+")")
 	.attr("fill",function(d){
 		return colors[fileNameToColor[d.geo]]
 	})
@@ -216,27 +216,27 @@ function drawNation(data){
 		return xScale(parseInt(d.max))+10
 	})
 	.attr("cy",function(d,i){return i*barH+barH/8})
-	.attr("r",3)
+	.attr("r",4)
 	// .attr("height",function(d,i){return barH/4})
-// 	.attr("width",function(d,i){
-// 		return 2
-// 		if(d.geo=="nation"){
-// 			return xScale(parseInt(d.max))
-// 		}
-// 		//console.log(parseInt(d.max)-parseInt(d.min))
-// 		return xScale(parseInt(d.max)-parseInt(d.min))
-// 	})
-	.attr("transform","translate("+p*4+","+p+")")
+	// 	.attr("width",function(d,i){
+	// 		return 2
+	// 		if(d.geo=="nation"){
+	// 			return xScale(parseInt(d.max))
+	// 		}
+	// 		//console.log(parseInt(d.max)-parseInt(d.min))
+	// 		return xScale(parseInt(d.max)-parseInt(d.min))
+	// 	})
+	.attr("transform","translate("+p*4+","+p/2+")")
 	.attr("fill",function(d){
 		return colors[fileNameToColor[d.geo]]
 	})
 	
 	
-	nationSvg.selectAll(".nationLabel")
+	nationSvg.selectAll(".nationLabel_outline")
 	.data(data)
 	.enter()
 	.append("text")
-	.attr("class","nationLabel _5")
+	.attr("class","nationLabel_outline _6")
 	.attr("x",function(d){
 		if(d.geo=="nation"){
 			return xScale(parseInt(d.max))+10
@@ -253,11 +253,38 @@ function drawNation(data){
 		}
 		return "each with "+min+" to "+max+" residents"
 	})
-	.attr("transform","translate("+p*4+","+p+")")
+	.attr("transform","translate("+p*4+","+p/2+")")
+	.attr("fill","none")
+	.attr("stroke-width","4px")
+	.attr("stroke","#fff")
+	.attr("opacity",1)
+	
+	nationSvg.selectAll(".nationLabel")
+	.data(data)
+	.enter()
+	.append("text")
+	.attr("class","nationLabel _6")
+	.attr("x",function(d){
+		if(d.geo=="nation"){
+			return xScale(parseInt(d.max))+10
+		}
+		return xScale(parseInt(d.max))+20
+	})
+	.attr("y",function(d,i){return i*barH+barH/4})
+	.text(function(d,i){
+		var min = numberWithCommas(d.min)
+		var max = numberWithCommas(d.max)
+		var geo = d.geo.split("_").join(" ")
+		if(d.geo=="nation"){
+			return "with "+ max+" residents"
+		}
+		return "each with "+min+" to "+max+" residents"
+	})
+	.attr("transform","translate("+p*4+","+p/2+")")
 	.attr("fill",function(d){
 		return colors[fileNameToColor[d.geo]]
 	})
-	.attr("opacity",.5)
+	.attr("opacity",1)
 	
 	nationSvg.selectAll(".nationGeoLabel")
 	.data(data)
@@ -275,9 +302,9 @@ function drawNation(data){
 		var min = numberWithCommas(d.min)
 		var max = numberWithCommas(d.max)
 		var geo = d.geo.split("_").join(" ")
-		return geo
+		return geo.toUpperCase()
 	})
-	.attr("transform","translate("+p*4+","+p+")")
+	.attr("transform","translate("+p*4+","+p/2+")")
 	.attr("fill",function(d){
 		return colors[fileNameToColor[d.geo]]
 	})
@@ -487,11 +514,12 @@ function drawChart(data, w, p, ch, chartColor){
 
 
 function drawDiagram(data,maxMinData,svg){
+	var activeId = "nation"
 	//console.log(data)	
-	svg.append("text").text("Standard Hierarchy of Census GeographicEntities")
+	svg.append("text").text("Standard Hierarchy of Census Geographic Entities")
+	.style("font-size","16px")
 	.attr("x",w/2).attr("y",spaceY).attr("text-anchor","middle")
-	.style("font-weight",800)
-	.style("font-size","18px")
+	// .style("font-size","18px")
 	
 	svg.selectAll(".labelOutline")
 	.data(data)
@@ -505,9 +533,9 @@ function drawDiagram(data,maxMinData,svg){
 	})
 	.text(function(d){
 		if(d.colorClass=="blank"){return ""}
-		return d.label
+		return d.label.toUpperCase()
 	})
-	.attr("stroke-width","10px")
+	.attr("stroke-width","8px")
 	.style("line-cap","round")
 	.style("stroke","#fff")
 	.style("fill-opacity",0)
@@ -527,7 +555,7 @@ function drawDiagram(data,maxMinData,svg){
 	})
 	.text(function(d){
 		if(d.colorClass=="blank"){return ""}
-		return d.label
+		return d.label.toUpperCase()
 	})
 	.attr("x",function(d,i){ return d.x*spaceX+w/2})
 	.attr("y",function(d){return d.y*spaceY+spaceY*2+5})
@@ -541,7 +569,7 @@ function drawDiagram(data,maxMinData,svg){
 		}
 	})
 	.style("opacity",function(d){
-		console.log(d)
+		//console.log(d)
 		if(d["maxMin"]!=undefined || d["label"]=="nation"){
 			return 1
 		}else{
@@ -555,20 +583,28 @@ function drawDiagram(data,maxMinData,svg){
 	})
 	.on("click",function(e,d){
 		var chartId = cleanString(d.label)
+		activeId = chartId
 		//console.log(chartId)
 		d3.selectAll(".detailChart").style("display","none")
 		d3.selectAll("#"+chartId).style("display","block")
+		d3.selectAll(".label").style("text-shadow","1px 1px 2px white")
+		d3.select(this).style("text-shadow","1px 1px 2px gold")
 		
 	})
 	 .on("mouseover",function(e,d){
-		// console.log(d)
+	//	 console.log(d)
+		 
 		 if(d["maxMin"]!=undefined){
-			 d3.select(this).style("text-shadow","2px 2px 2px gold")
+			 d3.select(this).style("text-shadow","4px 4px 8px gold")
 		 }
 	 })
 	 .on("mouseout",function(e,d){
-		d3.select(this).style("text-shadow","1px 1px 8px white")
-	 	
+		 var idName = cleanString(d.label)
+		 if(activeId==idName){
+			 d3.select(this).style("text-shadow","4px 4px 8px gold")
+		 }else{
+			 d3.select(this).style("text-shadow","1px 1px 2px white")
+		 }	 	
 	 })
 	// 		var string = ""
 	// 		if(d["maxMin"]!=undefined){
