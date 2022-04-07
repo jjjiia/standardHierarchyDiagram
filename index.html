@@ -4,8 +4,11 @@
 <style>
 	#info{
 		font-family:Roboto;
-		font-size:18px;
+		font-size:14px;
 		padding:10px;
+		text-decoration:italic;
+		width:300px;
+		position:fixed;
 	}
 	a{color:#000;}
 	#diagram{
@@ -13,12 +16,13 @@
 		height:700px;
 		font-family:Roboto;
 		position:fixed;
+		top:60px;
 	}
 	#data{
 		position:absolute;
 /*		border:1px solid;
 */		left:760px;
-		top:50px;
+		top:100px;
 		font-family:Roboto;
 		padding:10px;
 		font-size:14px;
@@ -43,7 +47,11 @@
 		z-index:999;
 		background-color:#fff;
 		padding:10px;
+		visibility:hidden;
 		border:1px solid black;
+	}
+	.detailChart{
+		display:none;
 	}
 </style>
 
@@ -54,7 +62,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400&display=swap" rel="stylesheet">
-<div id="info">Here is an interactive reproduction of the <a href="https://www2.census.gov/geo/pdfs/reference/geodiagram.pdf" target="blank">diagram</a>
+<div id="info">Here is an interactive reproduction of a <a href="https://www2.census.gov/geo/pdfs/reference/geodiagram.pdf" target="blank">diagram</a>
 	from the Census Bureau describing the hierarchy of the geographic units that Census data are packaged into.  <!-- Data of the population of each layer of hierarchy is based on the American Community Survey's most recent 2020 5-year estimates. --></div> 
    
 <div id="diagram"></div>

@@ -135,7 +135,7 @@ function ready(data){
 		}
 	}
 	
-	
+	d3.selectAll("#regions").style("display","block")
 }
 function drawNation(){
 	
@@ -146,15 +146,16 @@ function numberWithCommas(num) {
 
 
 function drawScatter(data,geo,chartColor){
-	console.log(chartColor)
+	//console.log(chartColor)
 	var scatterW = 500
 	var scatterH = 300
 	var scatterP = 80
 	var maxPop = d3.max(data, function(d) {return parseInt(d["population"]); })
 	var maxArea = d3.max(data, function(d) {return parseFloat(d["area"]); })
 
-	console.log(maxPop,maxArea)
-	var scatterDiv = d3.select("#detail").append("div")
+	//console.log(maxPop,maxArea)
+	var scatterDiv = d3.select("#detail").append("div").attr("id",cleanString(geo))
+	.attr("class","detailChart")
 	var titleDiv = scatterDiv.append("div").html(geo)
 	var scatterSvg = scatterDiv.append('svg')
 	.attr("width",scatterW+scatterP*3)
@@ -271,8 +272,9 @@ function drawChart(data, w, p, ch, chartColor){
 			var geo = data.geo
 			
 			var chartDiv = d3.select("#detail").append("div").attr("id",cleanString(geo))
+			.attr("class","detailChart")
 			var titleDiv = chartDiv.append("div").html(geo.split("_").join(" "))
-			var chartSvg = d3.select("#detail").append("svg").attr("width",w+p*2).attr("height",ch+p*2)
+			var chartSvg = chartDiv.append("svg").attr("width",w+p*2).attr("height",ch+p*2)
 			var yScale = d3.scaleSqrt().domain([1,max]).range([5,ch])
 			var yScaleFlip= d3.scaleSqrt().domain([max,1]).range([1,ch])
 			
@@ -406,8 +408,15 @@ function drawDiagram(data,maxMinData,svg){
 		 return "pointer"
 	 }
 	})
+	.on("click",function(e,d){
+		var chartId = cleanString(d.label)
+		console.log(chartId)
+		d3.selectAll(".detailChart").style("display","none")
+		d3.selectAll("#"+chartId).style("display","block")
+		
+	})
 	 .on("mouseover",function(e,d){
-		 console.log(d)
+		// console.log(d)
 		 if(d["maxMin"]!=undefined){
 			 d3.select(this).style("text-shadow","2px 2px 2px gold")
 		 }
