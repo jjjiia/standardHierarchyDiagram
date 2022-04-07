@@ -32,6 +32,7 @@ var colors = {
 	blank:"#000"
 }
 var fileNameToColor = {
+	nation:"nation",
 	ZIP_Code_Tabulation_Areas:"regions",
 	urban_areas: "regions",
 	school_districts: "states",
@@ -142,17 +143,17 @@ function ready(data){
 }
 function drawNation(data){
 	console.log(data)
-	var w = 700
+	var w = 400
 	var h = 700
-	var p = 40
+	var p = 60
 	var barH = 40
 	var nationDiv = d3.select("#detail").append("div").attr("id","nation").attr("class","detailChart")
 	var nationTitle = nationDiv.append("div").html("Overview of population range for each geography")
-	var nationSvg = nationDiv.append("svg").attr("width",w+p*3).attr("height",h)
+	var nationSvg = nationDiv.append("svg").attr("width",w+p*7).attr("height",h)
 	
 	var xScale = d3.scaleLinear().domain([0,parseInt(data[0].max)]).range([5,w])
-	var xAxis = d3.axisTop().scale(xScale)
-	nationSvg.append("g").call(xAxis).attr("transform","translate("+p+","+p+")")
+	var xAxis = d3.axisTop().scale(xScale).ticks(4)
+	nationSvg.append("g").call(xAxis).attr("transform","translate("+p*4+","+(p-10)+")")
 	nationSvg.selectAll(".nationBars")
 	.data(data)
 	.enter()
@@ -169,10 +170,10 @@ function drawNation(data){
 		if(d.geo=="nation"){
 			return xScale(parseInt(d.max))
 		}
-		console.log(parseInt(d.max)-parseInt(d.min))
+		//console.log(parseInt(d.max)-parseInt(d.min))
 		return xScale(parseInt(d.max)-parseInt(d.min))
 	})
-	.attr("transform","translate("+p+","+p+")")
+	.attr("transform","translate("+p*4+","+p+")")
 	.attr("fill",function(d){
 		return colors[fileNameToColor[d.geo]]
 	})
@@ -181,26 +182,52 @@ function drawNation(data){
 	.data(data)
 	.enter()
 	.append("text")
+	.attr("class","nationLabel _5")
 	.attr("x",function(d){
 		if(d.geo=="nation"){
-			return 0//xScale(parseInt(d.max))
+			return xScale(parseInt(d.max))+10
 		}
-		return xScale(parseInt(d.min))
+		return xScale(parseInt(d.max))+10
 	})
-	.attr("y",function(d,i){return i*barH+barH/2+2})
+	.attr("y",function(d,i){return i*barH+barH/4})
 	.text(function(d,i){
 		var min = numberWithCommas(d.min)
 		var max = numberWithCommas(d.max)
 		var geo = d.geo.split("_").join(" ")
 		if(d.geo=="nation"){
-			return geo+": "+max+" residents"
+			return max+" residents"
 		}
-		return geo+": "+min+" - "+max+" residents"
+		return min+" to "+max+" residents"
 	})
-	.attr("transform","translate("+p+","+p+")")
+	.attr("transform","translate("+p*4+","+p+")")
 	.attr("fill",function(d){
 		return colors[fileNameToColor[d.geo]]
 	})
+	.attr("opacity",.5)
+	
+	nationSvg.selectAll(".nationGeoLabel")
+	.data(data)
+	.enter()
+	.append("text")
+	.attr("class","nationGeoLabel _5")
+	.attr("x",function(d){
+		if(d.geo=="nation"){
+			return -5
+		}
+		return xScale(parseInt(d.min))-5
+	})
+	.attr("y",function(d,i){return i*barH+barH/4})
+	.text(function(d,i){
+		var min = numberWithCommas(d.min)
+		var max = numberWithCommas(d.max)
+		var geo = d.geo.split("_").join(" ")
+		return geo
+	})
+	.attr("transform","translate("+p*4+","+p+")")
+	.attr("fill",function(d){
+		return colors[fileNameToColor[d.geo]]
+	})
+	.style("text-anchor","end")
 }
 
 function numberWithCommas(num) {
