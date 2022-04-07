@@ -20,15 +20,15 @@ var files = ["s_block_groups.csv",
 "s_urban_areas.csv",
 "s_ZIP_Code_Tabulation_Areas.csv"]
 var colors = {
-	nation:"#000",  
-	regions:"#6178d9",
-	divisions:"#7854d9",
-	states:"#5eb24c",
-	counties:"#d54684",
-	tracts:"#95469c",
+	nation:"#aaa",  
+	regions:"#7368d3",
+	divisions:"#bf50ce",
+	states:"#48b263",
+	counties:"#cd5136",
+	tracts:"#48b263",
 	groups:"#4bbbb1",
 	blocks:"#333",
-	subminor:"#d5453e",
+	subminor:"#cd5136",
 	blank:"#000"
 }
 var fileNameToColor = {
@@ -38,8 +38,9 @@ var fileNameToColor = {
 	state_legislative_districts: "states",
 	counties:"counties",
 	places: "states",
+	regions:"regions",
 	county_subdivisions: "counties",
-
+	divisions:"divisions",
 	block_groups:"groups",
 	census_tracts: "tracts",
 	subminor_civil_divisions:"subminor",
@@ -117,7 +118,9 @@ function ready(data){
 	// console.log(maxMin)
 	var scatterLayers = ["regions","divisions","states"]
 	
+	
 	var histoData = data[3]
+	
 	for(var i in histoData){
 		
 		if(scatterLayers.indexOf(histoData[i].geo)>-1){
@@ -128,18 +131,78 @@ function ready(data){
 			drawScatter(scatterData,geo,chartColor)
 			
 		}else if(histoData[i].geo=="nation"){
-			drawNation()
+			drawNation(histoData)
 		}else if(histoData[i].bins!=undefined ){
 			var chartColor = colors[fileNameToColor[histoData[i].geo]]
 			drawChart(histoData[i],600,40,300,chartColor)
 		}
 	}
 	
-	d3.selectAll("#regions").style("display","block")
+	d3.selectAll("#nation").style("display","block")
 }
-function drawNation(){
+function drawNation(data){
+	console.log(data)
+	var w = 700
+	var h = 700
+	var p = 40
+	var barH = 40
+	var nationDiv = d3.select("#detail").append("div").attr("id","nation").attr("class","detailChart")
+	var nationTitle = nationDiv.append("div").html("Overview of population range for each geography")
+	var nationSvg = nationDiv.append("svg").attr("width",w+p*3).attr("height",h)
 	
+	var xScale = d3.scaleLinear().domain([0,parseInt(data[0].max)]).range([5,w])
+	var xAxis = d3.axisTop().scale(xScale)
+	nationSvg.append("g").call(xAxis).attr("transform","translate("+p+","+p+")")
+	nationSvg.selectAll(".nationBars")
+	.data(data)
+	.enter()
+	.append("rect")
+	.attr("x",function(d){
+		if(d.geo=="nation"){
+			return 0
+		}
+		return xScale(parseInt(d.min))
+	})
+	.attr("y",function(d,i){return i*barH})
+	.attr("height",function(d,i){return barH/4})
+	.attr("width",function(d,i){
+		if(d.geo=="nation"){
+			return xScale(parseInt(d.max))
+		}
+		console.log(parseInt(d.max)-parseInt(d.min))
+		return xScale(parseInt(d.max)-parseInt(d.min))
+	})
+	.attr("transform","translate("+p+","+p+")")
+	.attr("fill",function(d){
+		return colors[fileNameToColor[d.geo]]
+	})
+	
+	nationSvg.selectAll(".nationLabel")
+	.data(data)
+	.enter()
+	.append("text")
+	.attr("x",function(d){
+		if(d.geo=="nation"){
+			return 0//xScale(parseInt(d.max))
+		}
+		return xScale(parseInt(d.min))
+	})
+	.attr("y",function(d,i){return i*barH+barH/2+2})
+	.text(function(d,i){
+		var min = numberWithCommas(d.min)
+		var max = numberWithCommas(d.max)
+		var geo = d.geo.split("_").join(" ")
+		if(d.geo=="nation"){
+			return geo+": "+max+" residents"
+		}
+		return geo+": "+min+" - "+max+" residents"
+	})
+	.attr("transform","translate("+p+","+p+")")
+	.attr("fill",function(d){
+		return colors[fileNameToColor[d.geo]]
+	})
 }
+
 function numberWithCommas(num) {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
@@ -163,7 +226,7 @@ function drawScatter(data,geo,chartColor){
 	
 	
 	scatterSvg.append("text").text("population").attr("x",scatterW/2)
-	.attr("y",scatterH+scatterP*1.8)
+	.attr("y",scatterH+scatterP*1.5)
 	
 	scatterSvg.append("text").text("area").attr("x",0).attr("y",0)
 	.attr("transform","rotate(90) translate("+scatterP*2+","+(-scatterP*.2)+")")
@@ -189,7 +252,7 @@ function drawScatter(data,geo,chartColor){
 	.data(data)
 	.enter()
 	.append("circle")
-	.attr("r",5)
+	.attr("r",6)
 	.attr("cx",function(d,i){return xScale(parseInt(d.population))})
 	.attr("cy",function(d,i){return yScale(parseFloat(d.area))})
 	.attr("opacity",.5)
@@ -534,7 +597,12 @@ function drawLinks(links,nodes,svg){
 			.attr("d",function(){
  					return linkPath(lineData)
 			})
-			.attr('stroke', colors[nodesDictionary[cleanString(source)].colorClass])
+			.attr('stroke', function(){
+				if(nodesDictionary[cleanString(target)]["maxMin"]==undefined ||nodesDictionary[cleanString(source)]["maxMin"]==undefined){
+					return "#aaa"
+				}
+				return colors[nodesDictionary[cleanString(source)].colorClass]
+			})
 			.style("opacity",function(){
 				if(nodesDictionary[cleanString(target)]["maxMin"]!=undefined){
 					return 1
